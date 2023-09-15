@@ -71,6 +71,28 @@ def identify_sql(url):
     
     return identified_sql_keywords
 
+def identify_aspnet(url):
+    try:
+        response = requests.head(url)
+        server_header = response.headers.get('Server', '').lower()
+        if 'aspnet' in server_header:
+            return True
+    except Exception:
+        pass
+    
+    return False
+
+def identify_cpp(url):
+    try:
+        response = requests.head(url)
+        server_header = response.headers.get('Server', '').lower()
+        if 'cppcms' in server_header:
+            return True
+    except Exception:
+        pass
+    
+    return False
+
 def identify_web_technologies(url):
     html_content = fetch_html_content(url)
     
@@ -79,19 +101,23 @@ def identify_web_technologies(url):
     html_frameworks = identify_html_frameworks(html_content)
     is_nodejs = identify_nodejs(url)
     sql_keywords = identify_sql(url)
+    is_aspnet = identify_aspnet(url)  # Add ASP.NET identification
+    is_cpp = identify_cpp(url)  # Add C++ identification
     
     identified_technologies = {
         "JavaScript Libraries": js_libraries,
         "Python Libraries": python_libraries,
         "HTML Frameworks": html_frameworks,
         "Node.js": is_nodejs,
-        "SQL Keywords": sql_keywords
+        "SQL Keywords": sql_keywords,
+        "ASP.NET": is_aspnet,  # Include ASP.NET detection in the result
+        "C++": is_cpp  # Include C++ detection in the result
     }
     
     return identified_technologies
 
 if __name__ == "__main__":
-    website_url = "https://google.com"
+    website_url = "https://chapa.co"
     technologies = identify_web_technologies(website_url)
 
     print("Identified Web Technologies:")
