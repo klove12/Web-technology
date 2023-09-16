@@ -5,6 +5,7 @@ from user_agent import generate_user_agent
 import builtwith
 import httpx
 from jsbeautifier import beautify
+import time
 
 def fetch_html_content(url):
     headers = {'User-Agent': generate_user_agent()}
@@ -93,6 +94,38 @@ def identify_cpp(url):
     
     return False
 
+def identify_php_usage(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+
+        # Check for PHP in the URL path
+        if re.search(r'\.php', response.url):
+            return "Php detected"
+
+        # Check for PHP in response headers
+        if 'X-Powered-By' in response.headers:
+            if 'PHP' in response.headers['X-Powered-By']:
+                return "Php detected"
+
+        # Check for PHP keywords in response content
+        if 'php' in response.text.lower():
+            return "Php detected"
+
+        # Check for common PHP file extensions in script tags
+        script_tags = re.findall(r'<script[^>]*src=["\'](.*?)["\']', response.text)
+        php_extensions = ['.php', '.phtml', '.php3', '.php4', '.php5', '.php7']
+        for script in script_tags:
+            for ext in php_extensions:
+                if ext in script:
+                    return "Php detected"
+
+    except Exception:
+        pass
+
+    return False
+
+
 def identify_web_technologies(url):
     html_content = fetch_html_content(url)
     
@@ -103,7 +136,7 @@ def identify_web_technologies(url):
     sql_keywords = identify_sql(url)
     is_aspnet = identify_aspnet(url)  # Add ASP.NET identification
     is_cpp = identify_cpp(url)  # Add C++ identification
-    
+    is_php = identify_php_usage(url)
     identified_technologies = {
         "JavaScript Libraries": js_libraries,
         "Python Libraries": python_libraries,
@@ -111,18 +144,24 @@ def identify_web_technologies(url):
         "Node.js": is_nodejs,
         "SQL Keywords": sql_keywords,
         "ASP.NET": is_aspnet,  # Include ASP.NET detection in the result
-        "C++": is_cpp  # Include C++ detection in the result
+        "C++": is_cpp,  # Include C++ detection in the result
+        "PHP": is_php
     }
     
     return identified_technologies
 
 if __name__ == "__main__":
-    website_url = "https://chapa.co"
+    website_url = "https://www.youtube.com"
     technologies = identify_web_technologies(website_url)
 
-    print("Identified Web Technologies:")
+    print("Identified Web Technologies (Current):")
     for category, tech_list in technologies.items():
         if tech_list:
             print(f"{category}: {tech_list}")
         else:
             print(f"{category}: None")
+            print("Sleeping for 1 minute before the next check...")
+        time.sleep(60)
+            
+
+              
