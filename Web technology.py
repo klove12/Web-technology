@@ -151,7 +151,8 @@ def identify_web_technologies(url):
     return identified_technologies
 
 if __name__ == "__main__":
-    website_url = "https://www.youtube.com"
+  while True:
+    website_url = "https://www.youtube.com" #Any website url 
     technologies = identify_web_technologies(website_url)
 
     print("Identified Web Technologies (Current):")
@@ -160,8 +161,11 @@ if __name__ == "__main__":
             print(f"{category}: {tech_list}")
         else:
             print(f"{category}: None")
-            print("Sleeping for 1 minute before the next check...")
-        time.sleep(60)
+    print("Waiting for 3 Hours before the next check...")
+    time.sleep(10800)  # Sleep for 3 hours (10800Sec)
             
-
+            
+                  
+            
+            
               
